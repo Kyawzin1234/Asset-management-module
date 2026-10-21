@@ -1,0 +1,17 @@
+{
+  "/api/assets/[id]/route": "app/api/assets/[id]/route.js",
+  "/api/assets/route": "app/api/assets/route.js",
+  "/api/assignments/route": "app/api/assignments/route.js",
+  "/api/audit/route": "app/api/audit/route.js",
+  "/api/bootstrap/route": "app/api/bootstrap/route.js",
+  "/api/companies/route": "app/api/companies/route.js",
+  "/api/dispatch/route": "app/api/dispatch/route.js",
+  "/api/employees/route": "app/api/employees/route.js",
+  "/api/licenses/route": "app/api/licenses/route.js",
+  "/api/reports/preview/route": "app/api/reports/preview/route.js",
+  "/api/returns/route": "app/api/returns/route.js",
+  "/api/stats/route": "app/api/stats/route.js",
+  "/api/transfers/route": "app/api/transfers/route.js",
+  "/api/vendors/route": "app/api/vendors/route.js",
+  "/page": "app/page.js"
+}

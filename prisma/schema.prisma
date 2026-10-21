@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  industry  String?
+  location  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  assets    Asset[]
+  employees Employee[]
+  vendors   Vendor[]
+  licenses  SoftwareLicense[]
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  empCode     String   @unique
+  name        String
+  email       String   @unique
+  department  String
+  designation String
+  location    String?
+  phone       String?
+  status      String   @default("ACTIVE")
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+
+  assignments Assignment[]
+}
+
+model Asset {
+  id           String    @id @default(cuid())
+  assetTag     String    @unique
+  name         String
+  category     String
+  brand        String?
+  serialNumber String?
+  status       String    @default("IN_STOCK")
+  condition    String    @default("Excellent")
+  purchaseCost Float     @default(0)
+  purchaseDate DateTime?
+  warrantyEnd  DateTime?
+  location     String?
+  notes        String?
+  companyId    String
+  company      Company   @relation(fields: [companyId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  assignments Assignment[]
+  repairs     RepairRecord[]
+}
+
+model Assignment {
+  id               String    @id @default(cuid())
+  receiptId        String    @unique
+  assetId          String
+  asset            Asset     @relation(fields: [assetId], references: [id])
+  employeeId       String
+  employee         Employee  @relation(fields: [employeeId], references: [id])
+  issuedAt         DateTime  @default(now())
+  expectedReturnAt DateTime?
+  returnedAt       DateTime?
+  status           String    @default("ACTIVE")
+  signoffBy        String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+
+  transfers TransferRecord[]
+  returns   ReturnRecord[]
+}
+
+model ReturnRecord {
+  id           String     @id @default(cuid())
+  returnId     String     @unique
+  assignmentId String     @unique
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  returnedAt   DateTime   @default(now())
+  condition    String
+  reason       String
+  processedBy  String
+  notes        String?
+}
+
+model TransferRecord {
+  id            String     @id @default(cuid())
+  transferId    String     @unique
+  assignmentId  String
+  assignment    Assignment @relation(fields: [assignmentId], references: [id])
+  fromDept      String
+  toDept        String
+  fromCompany   String?
+  toCompany     String?
+  transferredAt DateTime   @default(now())
+  operator      String
+  reason        String?
+}
+
+model RepairRecord {
+  id           String   @id @default(cuid())
+  rmaNumber    String   @unique
+  assetId      String
+  asset        Asset    @relation(fields: [assetId], references: [id])
+  vendorId     String?
+  vendor       Vendor?  @relation(fields: [vendorId], references: [id])
+  issue        String
+  reportedAt   DateTime @default(now())
+  resolvedAt   DateTime?
+  repairCost   Float    @default(0)
+  downtimeDays Int      @default(0)
+  status       String   @default("OPEN")
+  ticketNo     String?
+}
+
+model SoftwareLicense {
+  id          String   @id @default(cuid())
+  name        String
+  vendorId    String?
+  vendor      Vendor?  @relation(fields: [vendorId], references: [id])
+  licenseKey  String?
+  seats       Int      @default(1)
+  seatsUsed   Int      @default(0)
+  type        String   @default("Subscription")
+  expiresAt   DateTime?
+  costPerSeat Float    @default(0)
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Vendor {
+  id        String   @id @default(cuid())
+  name      String
+  category  String?
+  contact   String?
+  email     String?
+  phone     String?
+  address   String?
+  rating    Float    @default(4)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+
+  repairs  RepairRecord[]
+  licenses SoftwareLicense[]
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  timestamp      DateTime @default(now())
+  category       String
+  operator       String
+  affectedRecord String
+  actionDetails  String
+  checksum       String
+  severity       String   @default("INFO")
+
+  @@index([timestamp])
+}
+
+model DispatchSchedule {
+  id         String   @id @default(cuid())
+  frequency  String   @default("Monthly (1st Day 09:00 AM)")
+  recipients String   @default("compliance@acme.com, dept-leads@acme.com")
+  formats    String   @default("PDF, Excel")
+  isActive   Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+}
